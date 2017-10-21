@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
+### Initial setup script for Debian based hosts
+### GitHub: @netzverweigerer
+
 set -e
+
+# Additional packages to be installed
+packages=(screen lynx curl wget rsync tmux irssi vim-nox htop irssi git nano-)
 
 basedir="$(dirname "$0")"
 
@@ -16,7 +22,6 @@ fin () {
 
 # Install packages
 info "Installing packages..."
-  packages=(screen lynx curl wget rsync tmux irssi vim-nox htop irssi git nano-)
   apt update
   apt install "${packages[@]}"
 fin

@@ -112,14 +112,7 @@ if ! shopt -oq posix; then
   fi
 fi
 
-
-
-
-
-
-
 ### prompt setup
-
 color01="\[\033[0;31m\]"
 color02="\[\033[0;32m\]"
 color03="\[\033[0;33m\]"

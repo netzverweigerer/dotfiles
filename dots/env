@@ -1,0 +1,34 @@
+alias t='ssh engine.vpn.blue'
+
+ssh () {
+  a="$(ssh-add -l)"
+  case "$a" in
+    "The agent has no identities.")
+      tput setaf 9
+      echo -n "[SSH] "
+      tput setaf 11
+      echo "Agent has no identities, calling \"ssh-add\"..."
+      tput sgr0
+      ssh-add
+    ;;
+  esac
+  command ssh "$@"
+}
+
+if [[ "$TERM" == screen ]]; then
+  export TERM=screen-256color
+fi
+
+wallpaper () {
+  feh --bg-fill "$@"
+}
+
+np () {
+  echo -n "np: "
+  audtool current-song
+}
+
+alias wp="$HOME/git/wp/wp"
+
+
+

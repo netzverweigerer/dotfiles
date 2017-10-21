@@ -1,0 +1,240 @@
+# ~/.bashrc: executed by bash(1) for non-login shells.
+# see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
+# for examples
+
+# If not running interactively, don't do anything
+case $- in
+    *i*) ;;
+      *) return;;
+esac
+
+# don't put duplicate lines or lines starting with space in the history.
+# See bash(1) for more options
+HISTCONTROL=ignoreboth
+
+# append to the history file, don't overwrite it
+shopt -s histappend
+
+# for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
+HISTSIZE=1000
+HISTFILESIZE=2000
+
+# check the window size after each command and, if necessary,
+# update the values of LINES and COLUMNS.
+shopt -s checkwinsize
+
+# If set, the pattern "**" used in a pathname expansion context will
+# match all files and zero or more directories and subdirectories.
+#shopt -s globstar
+
+# make less more friendly for non-text input files, see lesspipe(1)
+#[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+# set variable identifying the chroot you work in (used in the prompt below)
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
+fi
+
+# set a fancy prompt (non-color, unless we know we "want" color)
+case "$TERM" in
+    xterm-color|*-256color) color_prompt=yes;;
+esac
+
+# uncomment for a colored prompt, if the terminal has the capability; turned
+# off by default to not distract the user: the focus in a terminal window
+# should be on the output of commands, not on the prompt
+#force_color_prompt=yes
+
+if [ -n "$force_color_prompt" ]; then
+  if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
+    # We have color support; assume it's compliant with Ecma-48
+    # (ISO/IEC-6429). (Lack of such support is extremely rare, and such
+    # a case would tend to support setf rather than setaf.)
+    color_prompt=yes
+  else
+    color_prompt=
+  fi
+fi
+
+if [ "$color_prompt" = yes ]; then
+  PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+else
+  PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+fi
+unset color_prompt force_color_prompt
+
+# If this is an xterm set the title to user@host:dir
+case "$TERM" in
+xterm*|rxvt*)
+  PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+  ;;
+*)
+  ;;
+esac
+
+# enable color support of ls and also add handy aliases
+if [ -x /usr/bin/dircolors ]; then
+  test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+  alias ls='ls --color=auto'
+  #alias dir='dir --color=auto'
+  #alias vdir='vdir --color=auto'
+
+  #alias grep='grep --color=auto'
+  #alias fgrep='fgrep --color=auto'
+  #alias egrep='egrep --color=auto'
+fi
+
+# colored GCC warnings and errors
+#export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+
+# some more ls aliases
+#alias ll='ls -l'
+#alias la='ls -A'
+#alias l='ls -CF'
+
+# Alias definitions.
+# You may want to put all your additions into a separate file like
+# ~/.bash_aliases, instead of adding them here directly.
+# See /usr/share/doc/bash-doc/examples in the bash-doc package.
+
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
+
+# enable programmable completion features (you don't need to enable
+# this, if it's already enabled in /etc/bash.bashrc and /etc/profile
+# sources /etc/bash.bashrc).
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
+
+### prompt setup
+color01="\[\033[0;31m\]"
+color02="\[\033[0;32m\]"
+color03="\[\033[0;33m\]"
+color04="\[\033[0;34m\]"
+color05="\[\033[0;35m\]"
+color06="\[\033[0;36m\]"
+color07="\[\033[0;37m\]"
+color08="\[\033[0;38m\]"
+color09="\[\033[0;39m\]"
+
+color11="\[\033[1;31m\]"
+color12="\[\033[1;32m\]"
+color13="\[\033[1;33m\]"
+color14="\[\033[1;34m\]"
+color15="\[\033[1;35m\]"
+color16="\[\033[1;36m\]"
+color17="\[\033[1;37m\]"
+color18="\[\033[1;38m\]"
+color19="\[\033[1;39m\]"
+
+err_color="\[\033[0;37m\]"
+
+reset_color="\[\033[0m\]"
+
+gitprompt () {
+  if [[ -d .git ]]; then
+    branch="$(git symbolic-ref -q HEAD | sed 's/^refs\/heads\///')"
+    untracked="$(if [[ "$(git status -unormal | grep '^Untracked' | wc -l)" -gt 0 ]]; then echo "${color01}*"; fi)"
+    uncommitted="$(if [[ "$(git status -unormal | grep '^Changes to be committed' | wc -l)" -gt 0 ]]; then echo "${color02}*"; fi)"
+    off="$(git status -unormal | grep -E '^Your branch is (ahead|behind).*by [0-9]+ commits.*$')"
+    notstaged="$(if [[ "$(git status -unormal | grep -E '^Changes not staged for commit.*$' | wc -l)" -gt 0 ]]; then echo "${color04}*"; fi)"
+    aheadbehind="$(if [[ "$(git status -unormal | grep -E '^Your branch is (ahead|behind).*$' | wc -l)" -gt 0 ]]; then echo "${color03}*"; fi)"
+    offinfo=""; offchars="$(echo -n "$off" | wc -c)"; if [[ $offchars -gt 0 ]]; then offinfo="${color02}:"; fi
+    diverged="$(git status -unormal | grep -E '^Your branch and.*have diverged.*$')"
+    divergedinfo=""; divergedchars="$(echo -n "$diverged" | wc -c)"; if [[ $divergedchars -gt 0 ]]; then divergedinfo="${color03}$diverged"; fi
+    echo -n "${sq_color}[${reset_color}git ${color03}(${color13}${branch}${color03})${untracked}${uncommitted}${aheadbehind}${offinfo}${divergedinfo}${notstaged}${sq_color}]${reset_color} "
+  fi
+}
+
+# Outputs the current trunk, branch, or tag
+__svn_branch() {
+    local url=
+    if [[ -d .svn ]]; then
+        url=`svn info | awk '/URL:/ {print $2}'`
+        if [[ $url =~ trunk ]]; then
+            echo trunk
+        elif [[ $url =~ /branches/ ]]; then
+            echo $url | sed -e 's#^.*/\(branches/.*\)/.*$#\1#'
+        elif [[ $url =~ /tags/ ]]; then
+            echo $url | sed -e 's#^.*/\(tags/.*\)/.*$#\1#'
+        fi
+    fi
+}
+
+# Outputs the current revision
+__svn_rev() {
+    local r=$(svn info | awk '/Revision:/ {print $2}')
+    local a="$(svn status | grep '^\s*[?ACDMR?!]' | grep '^?' | wc -l)"
+    if [[ "$a" -gt 0 ]]; then
+      echo "${r}*"
+    else
+      echo "${r}"
+    fi
+}
+
+svnprompt () {
+  if [[ -d .svn ]]; then echo -n "${sq_color}[${reset_color}svn: $(__svn_rev) ($(__svn_branch))${sq_color}]${reset_color} "; fi
+}
+
+# This function is actually run every time you press enter to build the prompt. Make
+# your modifications here.
+prompt () {
+# prompt setup
+if [[ ${EUID} == 0 ]] ; then
+  # root squares color
+  sq_color="\[\033[0;31m\]"
+  symbol='#'
+else
+  # user squares color
+  sq_color="\[\033[0;34m\]"
+  symbol='$'
+fi
+returncode="$1"
+shift
+if [[ "$returncode" -gt 0 ]]; then
+  returncodestring=" $returncode"
+fi
+echo -n "$sq_color[\[\033[01;34m\]\u@\h\[\033[0;32m\]:\[\033[01;33m\]\w\[\033[01;31m\]${returncodestring}$sq_color] \[\033[01;37m\]\\[\\033[0m\\]"
+gitprompt
+svnprompt
+echo
+}
+
+PROMPT_COMMAND='PS1=$(prompt $?); echo -ne "\033]0;${USER}@${HOSTNAME}: $(pwd | sed "s/\/home\/${USER}/\~/")\007"'
+
+# history related stuff (see history -a in PROMPT_COMMAND, too!)
+PROMPT_COMMAND="$PROMPT_COMMAND; history -a"
+export HISTTIMEFORMAT="%h %d %H:%M:%S "
+export HISTSIZE=20000
+export HISTFILESIZE=20000
+shopt -s histappend
+
+# disable systemctl's stupid auto-paging feature:
+export SYSTEMD_PAGER=
+
+if [[ "$COLORTERM" || "$KONSOLE_PROFILE_NAME" ]]; then
+  if [[ "$TERM" == xterm ]]; then
+    export TERM=xterm-256color
+  fi
+fi
+
+alias ls="ls --color=auto --group-directories-first -F"
+alias grep='grep --color=auto'
+alias less='less -R'
+
+# append ~/bin to $PATH if it exists
+if [[ -d $HOME/bin/ ]]; then
+  export PATH=$PATH:$HOME/bin
+fi
+
+if [[ -f $HOME/.env ]]; then
+  . $HOME/.env
+fi
+
+
